@@ -11,9 +11,9 @@ import { ERRORS } from './util/CONSTANTS';
 import { renderDatasources, renderGenerators, renderModels, renderEnums } from './helpers/renderer';
 import { formatSchema } from '@prisma/sdk';
 
-export default async function aurora() {
+export default async function aurora(configFile: string) {
   // Grab the aurora configuration options from config file
-  const config: AuroraConfig = await getAuroraConfigJSON();
+  const config: AuroraConfig = await getAuroraConfigJSON(configFile);
   // Parse out the information from each prisma file
   const schemas: SchemaInformation[] = await Promise.all(config.files.map(parseSchema));
 

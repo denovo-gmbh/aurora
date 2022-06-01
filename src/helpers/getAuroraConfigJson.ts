@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import { promisify } from 'util';
 import type { AuroraConfig } from '../models';
-import { CONFIG_FILE_NAME, ERRORS } from '../util/CONSTANTS';
+import { ERRORS } from '../util/CONSTANTS';
 import { expandGlobPatterns } from './expandGlobPatterns';
 
 const readFile = promisify(fs.readFile);
@@ -11,22 +11,22 @@ const readFile = promisify(fs.readFile);
  *
  * @returns The configuration JSON object from the aurora configuration file
  */
-export async function getAuroraConfigJSON(): Promise<AuroraConfig> {
+export async function getAuroraConfigJSON(configFile: string): Promise<AuroraConfig> {
   try {
     // Read the JSON
-    const jsonString = await readFile(path.join(process.cwd(), CONFIG_FILE_NAME), {
+    const jsonString = await readFile(path.join(process.cwd(), configFile), {
       encoding: 'utf-8'
     });
 
     const config: AuroraConfig = JSON.parse(jsonString);
 
     // Ensure all of the fields were provided and are valid
-    validateConfigurationObject(config);
+    validateConfigurationObject(config, configFile);
 
     return expandGlobPatterns(config);
   } catch (e) {
     console.error(
-      `Aurora could not load ${CONFIG_FILE_NAME}. Please make sure this file exists and is valid.`
+      `Aurora could not load ${configFile}. Please make sure this file exists and is valid.`
     );
     throw e;
   }
@@ -37,10 +37,10 @@ export async function getAuroraConfigJSON(): Promise<AuroraConfig> {
  * @param config The Configuration object to validate
  * @description Throws errors if anything is invalid
  */
-const validateConfigurationObject = (config: AuroraConfig) => {
+const validateConfigurationObject = (config: AuroraConfig, configFile: string) => {
   if (!Object.keys(config)) {
     console.error(
-      `Your ${CONFIG_FILE_NAME} is invalid or empty. Please make sure this file exists and is valid.`
+      `Your ${configFile} is invalid or empty. Please make sure this file exists and is valid.`
     );
     throw new Error(ERRORS.INVALID_CONFIG_FILE);
   }
